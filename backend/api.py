@@ -11,7 +11,12 @@ app = FastAPI(title="TravelPilot API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js default port
+    allow_origins=[
+        "http://localhost:3000",
+        "https://travel-pilot.sujay-hk.in",
+        "https://travel-pilot.vercel.app",
+        "https://travel-pilot-git-main-sujay-hks-projects.vercel.app/",
+    ],  # Next.js default port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
