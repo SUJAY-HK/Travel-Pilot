@@ -1,0 +1,15 @@
+[project]
+name = "airbnbmcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.125.0",
+    "langchain-google-genai>=4.1.1",
+    "langchain-groq>=1.1.0",
+    "mcp-use>=1.5.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.38.0",
+]
