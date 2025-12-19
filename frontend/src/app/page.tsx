@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, MapPin, User, Bot, Loader2, Sparkles, Menu, Trash2, MessageSquare } from "lucide-react";
+import {
+  Send,
+  MapPin,
+  User,
+  Bot,
+  Loader2,
+  Sparkles,
+  Menu,
+  Trash2,
+  MessageSquare,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { clsx, type ClassValue } from "clsx";
@@ -61,9 +71,12 @@ export default function Home() {
 
     const userMessage = input;
     setInput("");
-    
+
     // Optimistic update
-    const updatedMessages = [...messages, { role: "user", content: userMessage } as Message];
+    const updatedMessages = [
+      ...messages,
+      { role: "user", content: userMessage } as Message,
+    ];
     setMessages(updatedMessages);
     setIsLoading(true);
 
@@ -81,10 +94,13 @@ export default function Home() {
       if (!res.ok) throw new Error("Failed to fetch");
 
       const data = await res.json();
-      
-      const assistantMessage = { role: "assistant", content: data.response } as Message;
+
+      const assistantMessage = {
+        role: "assistant",
+        content: data.response,
+      } as Message;
       const finalMessages = [...updatedMessages, assistantMessage];
-      
+
       setMessages(finalMessages);
 
       // Handle Session Management
@@ -93,30 +109,34 @@ export default function Home() {
         setSessionId(data.session_id);
       }
 
-      setSessions(prev => {
-        const existingIndex = prev.findIndex(s => s.id === currentSessionId);
+      setSessions((prev) => {
+        const existingIndex = prev.findIndex((s) => s.id === currentSessionId);
         if (existingIndex >= 0) {
           const updated = [...prev];
           updated[existingIndex] = {
             ...updated[existingIndex],
             messages: finalMessages,
             // Update title if it's the generic "New Chat" or purely generated
-             title: updated[existingIndex].title // Keep existing title
+            title: updated[existingIndex].title, // Keep existing title
           };
           // Move updated session to top
           const [movedSession] = updated.splice(existingIndex, 1);
           return [movedSession, ...updated];
         } else {
           // New Session
-          return [{
-            id: currentSessionId,
-            title: userMessage.slice(0, 40) + (userMessage.length > 40 ? "..." : ""),
-            messages: finalMessages,
-            createdAt: Date.now()
-          }, ...prev];
+          return [
+            {
+              id: currentSessionId,
+              title:
+                userMessage.slice(0, 40) +
+                (userMessage.length > 40 ? "..." : ""),
+              messages: finalMessages,
+              createdAt: Date.now(),
+            },
+            ...prev,
+          ];
         }
       });
-
     } catch (error) {
       console.error(error);
       setMessages((prev) => [
@@ -145,9 +165,9 @@ export default function Home() {
 
   const deleteSession = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setSessions(prev => prev.filter(s => s.id !== id));
+    setSessions((prev) => prev.filter((s) => s.id !== id));
     if (sessionId === id) {
-        handleNewChat();
+      handleNewChat();
     }
   };
 
@@ -161,57 +181,72 @@ export default function Home() {
         )}
       >
         <div className="p-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-2 font-bold text-slate-800 text-xl">
-                <div className="bg-rose-500 p-1.5 rounded-lg text-white">
-                    <MapPin size={20} />
-                </div>
-                TravelPilot
+          <div className="flex items-center gap-2 font-bold text-slate-800 text-xl">
+            <div className="bg-rose-500 p-1.5 rounded-lg text-white">
+              <MapPin size={20} />
             </div>
-            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-slate-500">
-                <Menu size={20} />
-            </button>
+            TravelPilot
+          </div>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden text-slate-500"
+          >
+            <Menu size={20} />
+          </button>
         </div>
-        
+
         <div className="p-4 flex-shrink-0">
-            <button 
-                onClick={handleNewChat}
-                className="w-full flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium border border-slate-200"
-            >
-                <Sparkles size={16} />
-                New Trip
-            </button>
+          <button
+            onClick={handleNewChat}
+            className="w-full flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium border border-slate-200"
+          >
+            <Sparkles size={16} />
+            New Trip
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-2">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">Recent Trips</h3>
-            <div className="space-y-1">
-                {sessions.length === 0 ? (
-                   <p className="text-xs text-slate-400 px-2 italic">No recent trips</p>
-                ) : (
-                    sessions.map((session) => (
-                        <div 
-                            key={session.id}
-                            onClick={() => loadSession(session)}
-                            className={cn(
-                                "group flex items-center gap-2 px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors",
-                                sessionId === session.id 
-                                    ? "bg-rose-50 text-rose-600 font-medium" 
-                                    : "text-slate-600 hover:bg-slate-50"
-                            )}
-                        >
-                            <MessageSquare size={14} className={cn("flex-shrink-0", sessionId === session.id ? "text-rose-500" : "text-slate-400")} />
-                            <span className="truncate flex-1">{session.title}</span>
-                            <button 
-                                onClick={(e) => deleteSession(e, session.id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 hover:text-rose-500 rounded text-slate-400 transition-all"
-                                title="Delete chat"
-                            >
-                                <Trash2 size={12} />
-                            </button>
-                        </div>
-                    ))
-                )}
-            </div>
+          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">
+            Recent Trips
+          </h3>
+          <div className="space-y-1">
+            {sessions.length === 0 ? (
+              <p className="text-xs text-slate-400 px-2 italic">
+                No recent trips
+              </p>
+            ) : (
+              sessions.map((session) => (
+                <div
+                  key={session.id}
+                  onClick={() => loadSession(session)}
+                  className={cn(
+                    "group flex items-center gap-2 px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors",
+                    sessionId === session.id
+                      ? "bg-rose-50 text-rose-600 font-medium"
+                      : "text-slate-600 hover:bg-slate-50"
+                  )}
+                >
+                  <MessageSquare
+                    size={14}
+                    className={cn(
+                      "flex-shrink-0",
+                      sessionId === session.id
+                        ? "text-rose-500"
+                        : "text-slate-400"
+                    )}
+                  />
+                  <span className="truncate flex-1">{session.title}</span>
+                  <button
+                    onClick={(e) => deleteSession(e, session.id)}
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 hover:text-rose-500 rounded text-slate-400 transition-all"
+                    title="Delete chat"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 
@@ -219,22 +254,35 @@ export default function Home() {
       <div className="flex-1 flex flex-col h-full w-full relative">
         {/* Header (Mobile) */}
         <div className="lg:hidden h-14 bg-white border-b border-slate-200 flex items-center px-4 justify-between flex-shrink-0">
-            <span className="font-bold text-slate-800">TravelPilot</span>
-            <button onClick={() => setIsSidebarOpen(true)} className="text-slate-600">
-                <Menu />
-            </button>
+          <span className="font-bold text-slate-800">TravelPilot</span>
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="text-slate-600"
+          >
+            <Menu />
+          </button>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6" ref={scrollRef}>
+        <div
+          className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6"
+          ref={scrollRef}
+        >
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 text-slate-500 opacity-0 animate-in fade-in duration-700 fill-mode-forwards" style={{ opacity: 1 }}>
+            <div
+              className="h-full flex flex-col items-center justify-center text-center space-y-4 text-slate-500 opacity-0 animate-in fade-in duration-700 fill-mode-forwards"
+              style={{ opacity: 1 }}
+            >
               <div className="bg-rose-100 p-4 rounded-full text-rose-500 mb-4">
                 <MapPin size={48} />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Where to next?</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
+                Where to next?
+              </h1>
               <p className="max-w-md text-slate-600">
-                I can help you find the perfect Airbnb. Try searching for &quot;Villas in Bali&quot; or &quot;Apartments in New York under $200&quot;.
+                I can help you find the perfect Airbnb. Try searching for
+                &quot;Villas in Bali&quot; or &quot;Apartments in New
+                York&quot;.
               </p>
             </div>
           ) : (
@@ -249,7 +297,9 @@ export default function Home() {
                 <div
                   className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1",
-                    msg.role === "user" ? "bg-slate-800 text-white" : "bg-rose-500 text-white"
+                    msg.role === "user"
+                      ? "bg-slate-800 text-white"
+                      : "bg-rose-500 text-white"
                   )}
                 >
                   {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
@@ -282,13 +332,13 @@ export default function Home() {
           )}
           {isLoading && (
             <div className="flex gap-4 max-w-3xl mx-auto">
-                <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot size={16} />
-                </div>
-                <div className="bg-white px-5 py-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex items-center gap-2 text-slate-500">
-                    <Loader2 size={16} className="animate-spin" />
-                    <span className="text-sm">Searching Airbnb...</span>
-                </div>
+              <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0 mt-1">
+                <Bot size={16} />
+              </div>
+              <div className="bg-white px-5 py-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex items-center gap-2 text-slate-500">
+                <Loader2 size={16} className="animate-spin" />
+                <span className="text-sm">Searching Airbnb...</span>
+              </div>
             </div>
           )}
         </div>
@@ -317,9 +367,9 @@ export default function Home() {
               </button>
             </form>
             <div className="text-center mt-2">
-                <p className="text-xs text-slate-400">
-                    Powered by Gemini & Airbnb MCP
-                </p>
+              <p className="text-xs text-slate-400">
+                Powered by Gemini & Airbnb MCP
+              </p>
             </div>
           </div>
         </div>
