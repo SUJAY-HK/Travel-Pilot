@@ -36,6 +36,16 @@ class ChatResponse(BaseModel):
     response: str
     session_id: str
 
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "TravelPilot API",
+        "message": "Service is running"
+    }
+
+
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     session_id = request.session_id or str(uuid.uuid4())
