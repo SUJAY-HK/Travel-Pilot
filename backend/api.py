@@ -36,7 +36,7 @@ class ChatResponse(BaseModel):
     response: str
     session_id: str
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {
         "status": "ok",
@@ -95,6 +95,6 @@ async def chat(request: ChatRequest):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Agent execution failed: {str(e)}")
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health_check():
     return {"status": "ok"}
