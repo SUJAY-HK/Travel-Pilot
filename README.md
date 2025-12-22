@@ -31,28 +31,8 @@ This makes travel planning more intuitive, faster, and intelligent.
 
 ## 🏗️ Architecture Overview
 
-```
-┌──────────────────┐
-│  Next.js Frontend│
-│  (Vercel)        │
-└────────┬─────────┘
-         │ HTTPS (Fetch)
-┌────────▼─────────┐
-│ FastAPI Backend  │
-│ (Render)         │
-│                  │
-│ • LangChain      │
-│ • MCP Client     │
-│ • AI Agents      │
-└────────┬─────────┘
-         │
-┌────────▼─────────┐
-│ MCP Servers /    │
-│ External Tools   │
-└──────────────────┘
-```
+<img width="1024" height="1536" alt="image" src="https://github.com/user-attachments/assets/bab3ba34-04df-44b3-b553-d8fc92e1fd97" />
 
----
 
 ## 🧰 Tech Stack
 
